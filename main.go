@@ -64,7 +64,7 @@ func power_of_four(number int32) int32 {
 	if number < 0 {
 		return int32(math.Pow(float64(number), 4))
 	}
-	return number
+	return 0
 }
 
 func string_to_int32(value string) int32 {
