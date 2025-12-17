@@ -45,7 +45,7 @@ func main() {
 		min := math.Pow(-2, 31)
 		max := math.Pow(2, 31)
 		// Note 4: The final output is guaranteed to be within the int32 range.
-		if aggregated >= int32(min) || aggregated <= int32(max) {
+		if aggregated >= int32(min) && aggregated <= int32(max) {
 			fmt.Println(aggregated)
 		}
 	} else {
