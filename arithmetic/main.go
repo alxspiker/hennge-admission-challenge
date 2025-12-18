@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -20,16 +19,16 @@ func main() {
 	}
 
 	// The first line of the input will indicate the number of test cases to follow.
-	value_of_x := string_to_int32(input.Text())
+	value_of_x := string_to_int64(input.Text())
 	input.Scan() // Second line Yn (-100 <= Yn <= 100)
 
 	if input.Text() == "" {
 		return
 	}
 
-	// The input will be a list of integers, each separated by a newline character.
-	var yn []int32 = recursive_loop(strings.Split(input.Text(), " "), 0, string_to_int32)
-	length_of_yn := int32(len(yn))
+	// The input will be a list of integers, each separated by a space character.
+	var yn []int64 = recursive_loop(strings.Split(input.Text(), " "), 0, string_to_int64)
+	length_of_yn := int64(len(yn))
 
 	// Note: There should be no output until all the input has been received.
 	if value_of_x == 0 || length_of_yn == 0 {
@@ -39,41 +38,41 @@ func main() {
 	// Note 5: It is possible that X and the number of integers Yn may not be equal.
 	// If that is the case, print -1 as the output.
 	if value_of_x == length_of_yn {
-		// For each test case, calculate the power of four of Yn, excluding when Yn is positive
-		var processed []int32 = recursive_loop(yn, 0, power_of_four)
+		// Calculate the sum of squares for positive integers only (>0)
+		// Negatives and zero are excluded before calculation
+		var processed []int64 = recursive_loop(yn, 0, squarePositive)
 		aggregated := sum(processed)
-		min := math.Pow(-2, 31)
-		max := math.Pow(2, 31)
-		// Note 4: The final output is guaranteed to be within the int32 range.
-		if aggregated >= int32(min) && aggregated <= int32(max) {
-			fmt.Println(aggregated)
-		}
+		fmt.Println(aggregated)
 	} else {
 		fmt.Println("-1")
 	}
 }
 
-func sum(numbers []int32) int32 {
+// sum calculates the sum of numbers using recursion (no for loops)
+// Uses int64 to prevent overflow on large squares
+func sum(numbers []int64) int64 {
 	if len(numbers) == 0 {
 		return 0
 	}
 	return numbers[0] + sum(numbers[1:])
 }
 
-func power_of_four(number int32) int32 {
-	if number < 0 {
-		return int32(math.Pow(float64(number), 4))
+// squarePositive returns n^2 for positive integers (n > 0), 0 otherwise
+// This ensures negative numbers are excluded BEFORE any calculation
+func squarePositive(number int64) int64 {
+	if number > 0 {
+		return number * number
 	}
 	return 0
 }
 
-func string_to_int32(value string) int32 {
+func string_to_int64(value string) int64 {
 	num, err := strconv.ParseInt(value, 10, 64)
 	if err != nil {
 		log.Fatal(err)
 		return 0
 	}
-	return int32(num)
+	return num
 }
 
 func recursive_loop[T, U any](list []T, index int, callback func(T) U) []U {
