@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/hmac"
 	"crypto/sha512"
+	"encoding/binary"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -32,6 +33,18 @@ func TestNoForLoops(t *testing.T) {
 	})
 }
 
+// checkDigitsRecursive checks if all characters in the string are digits
+func checkDigitsRecursive(t *testing.T, s string, index int) {
+	if index >= len(s) {
+		return
+	}
+	c := rune(s[index])
+	if c < '0' || c > '9' {
+		t.Errorf("Character at position %d is not a digit: %c", index, c)
+	}
+	checkDigitsRecursive(t, s, index+1)
+}
+
 // TestTOTP_compliance verifies TOTP implementation meets HENNGE requirements
 func TestTOTP_compliance(t *testing.T) {
 	email := "test@example.com"
@@ -58,12 +71,8 @@ func TestTOTP_compliance(t *testing.T) {
 			t.Errorf("TOTP should be zero-padded to 10 digits, got %d digits: %s", len(totp), totp)
 		}
 
-		// Verify all characters are digits
-		for i, c := range totp {
-			if c < '0' || c > '9' {
-				t.Errorf("Character at position %d is not a digit: %c", i, c)
-			}
-		}
+		// Verify all characters are digits using recursive function
+		checkDigitsRecursive(t, totp, 0)
 	})
 
 	t.Run("algorithm_is_sha512", func(t *testing.T) {
@@ -71,11 +80,10 @@ func TestTOTP_compliance(t *testing.T) {
 		// SHA512 produces 64 bytes (512 bits)
 		key := []byte(secret)
 		counter := int64(1234567890 / 30)
+
+		// Convert counter to bytes using binary.BigEndian (no for loop)
 		counterBytes := make([]byte, 8)
-		for i := 7; i >= 0; i-- {
-			counterBytes[i] = byte(counter & 0xff)
-			counter >>= 8
-		}
+		binary.BigEndian.PutUint64(counterBytes, uint64(counter))
 
 		mac := hmac.New(sha512.New, key)
 		mac.Write(counterBytes)
@@ -101,24 +109,37 @@ func TestTOTP_compliance(t *testing.T) {
 
 // TestBuildSecret tests the secret key construction
 func TestBuildSecret(t *testing.T) {
-	tests := []struct {
-		email    string
-		expected string
-	}{
-		{"test@example.com", "HENNGECHALLENGEtest@example.com"},
-		{"user@domain.org", "HENNGECHALLENGEuser@domain.org"},
-		{"aswai21@gmail.com", "HENNGECHALLENGEaswai21@gmail.com"},
-		{"", "HENNGECHALLENGE"},
-	}
+	t.Run("test@example.com", func(t *testing.T) {
+		result := BuildSecret("test@example.com")
+		expected := "HENNGECHALLENGEtest@example.com"
+		if result != expected {
+			t.Errorf("BuildSecret(%q) = %q; expected %q", "test@example.com", result, expected)
+		}
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.email, func(t *testing.T) {
-			result := BuildSecret(tt.email)
-			if result != tt.expected {
-				t.Errorf("BuildSecret(%q) = %q; expected %q", tt.email, result, tt.expected)
-			}
-		})
-	}
+	t.Run("user@domain.org", func(t *testing.T) {
+		result := BuildSecret("user@domain.org")
+		expected := "HENNGECHALLENGEuser@domain.org"
+		if result != expected {
+			t.Errorf("BuildSecret(%q) = %q; expected %q", "user@domain.org", result, expected)
+		}
+	})
+
+	t.Run("aswai21@gmail.com", func(t *testing.T) {
+		result := BuildSecret("aswai21@gmail.com")
+		expected := "HENNGECHALLENGEaswai21@gmail.com"
+		if result != expected {
+			t.Errorf("BuildSecret(%q) = %q; expected %q", "aswai21@gmail.com", result, expected)
+		}
+	})
+
+	t.Run("empty email", func(t *testing.T) {
+		result := BuildSecret("")
+		expected := "HENNGECHALLENGE"
+		if result != expected {
+			t.Errorf("BuildSecret(%q) = %q; expected %q", "", result, expected)
+		}
+	})
 }
 
 // TestGenerateTOTP tests basic TOTP generation
@@ -135,12 +156,8 @@ func TestGenerateTOTP(t *testing.T) {
 		t.Errorf("TOTP length = %d; expected 10", len(totp))
 	}
 
-	// Verify all digits
-	for i, c := range totp {
-		if c < '0' || c > '9' {
-			t.Errorf("Character at position %d is not a digit: %c", i, c)
-		}
-	}
+	// Verify all digits using recursive function
+	checkDigitsRecursive(t, totp, 0)
 }
 
 // TestGenerateTOTPWithTime tests TOTP generation at specific times
@@ -192,16 +209,23 @@ func TestDecodeSecret(t *testing.T) {
 	}
 }
 
+// testSecretLengthRecursive tests multiple secret lengths recursively
+func testSecretLengthRecursive(t *testing.T, lengths []int, index int) {
+	if index >= len(lengths) {
+		return
+	}
+	length := lengths[index]
+	secret := GenerateSecret(length)
+	if len(secret) != length {
+		t.Errorf("GenerateSecret(%d) produced string of length %d", length, len(secret))
+	}
+	testSecretLengthRecursive(t, lengths, index+1)
+}
+
 // TestGenerateSecret tests the secret generation
 func TestGenerateSecret(t *testing.T) {
 	lengths := []int{10, 20, 32}
-
-	for _, length := range lengths {
-		secret := GenerateSecret(length)
-		if len(secret) != length {
-			t.Errorf("GenerateSecret(%d) produced string of length %d", length, len(secret))
-		}
-	}
+	testSecretLengthRecursive(t, lengths, 0)
 }
 
 // TestDefaultConstants verifies the default constants meet HENNGE requirements

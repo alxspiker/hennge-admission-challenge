@@ -32,127 +32,237 @@ func TestNoForLoops(t *testing.T) {
 
 // TestSum tests the recursive sum function
 func TestSum(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    []int64
-		expected int64
-	}{
-		{"empty slice", []int64{}, 0},
-		{"single element", []int64{5}, 5},
-		{"multiple elements", []int64{1, 2, 3, 4, 5}, 15},
-		{"with negatives", []int64{-1, 2, -3, 4}, 2},
-		{"all zeros", []int64{0, 0, 0}, 0},
-		{"large numbers", []int64{1000000, 2000000, 3000000}, 6000000},
-	}
+	// Test empty slice
+	t.Run("empty slice", func(t *testing.T) {
+		if result := sum([]int64{}); result != 0 {
+			t.Errorf("sum([]) = %d; expected 0", result)
+		}
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := sum(tt.input)
-			if result != tt.expected {
-				t.Errorf("sum(%v) = %d; expected %d", tt.input, result, tt.expected)
-			}
-		})
-	}
+	// Test single element
+	t.Run("single element", func(t *testing.T) {
+		if result := sum([]int64{5}); result != 5 {
+			t.Errorf("sum([5]) = %d; expected 5", result)
+		}
+	})
+
+	// Test multiple elements
+	t.Run("multiple elements", func(t *testing.T) {
+		if result := sum([]int64{1, 2, 3, 4, 5}); result != 15 {
+			t.Errorf("sum([1,2,3,4,5]) = %d; expected 15", result)
+		}
+	})
+
+	// Test with negatives
+	t.Run("with negatives", func(t *testing.T) {
+		if result := sum([]int64{-1, 2, -3, 4}); result != 2 {
+			t.Errorf("sum([-1,2,-3,4]) = %d; expected 2", result)
+		}
+	})
+
+	// Test all zeros
+	t.Run("all zeros", func(t *testing.T) {
+		if result := sum([]int64{0, 0, 0}); result != 0 {
+			t.Errorf("sum([0,0,0]) = %d; expected 0", result)
+		}
+	})
+
+	// Test large numbers
+	t.Run("large numbers", func(t *testing.T) {
+		if result := sum([]int64{1000000, 2000000, 3000000}); result != 6000000 {
+			t.Errorf("sum([1000000,2000000,3000000]) = %d; expected 6000000", result)
+		}
+	})
 }
 
 // TestSquarePositive tests the squarePositive function
 func TestSquarePositive(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    int64
-		expected int64
-	}{
-		// Positive integers - should be squared
-		{"positive 1", 1, 1},
-		{"positive 2", 2, 4},
-		{"positive 3", 3, 9},
-		{"positive 5", 5, 25},
-		{"positive 10", 10, 100},
-		{"positive 100", 100, 10000},
+	// Positive integers - should be squared
+	t.Run("positive 1", func(t *testing.T) {
+		if result := squarePositive(1); result != 1 {
+			t.Errorf("squarePositive(1) = %d; expected 1", result)
+		}
+	})
 
-		// CRITICAL: Negative integers - should return 0, NOT be squared
-		{"negative -1", -1, 0},
-		{"negative -2", -2, 0},
-		{"negative -5", -5, 0},  // NOT 25!
-		{"negative -10", -10, 0}, // NOT 100!
-		{"negative -100", -100, 0},
+	t.Run("positive 2", func(t *testing.T) {
+		if result := squarePositive(2); result != 4 {
+			t.Errorf("squarePositive(2) = %d; expected 4", result)
+		}
+	})
 
-		// Zero - should return 0
-		{"zero", 0, 0},
-	}
+	t.Run("positive 3", func(t *testing.T) {
+		if result := squarePositive(3); result != 9 {
+			t.Errorf("squarePositive(3) = %d; expected 9", result)
+		}
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := squarePositive(tt.input)
-			if result != tt.expected {
-				t.Errorf("squarePositive(%d) = %d; expected %d", tt.input, result, tt.expected)
-			}
-		})
-	}
+	t.Run("positive 5", func(t *testing.T) {
+		if result := squarePositive(5); result != 25 {
+			t.Errorf("squarePositive(5) = %d; expected 25", result)
+		}
+	})
+
+	t.Run("positive 10", func(t *testing.T) {
+		if result := squarePositive(10); result != 100 {
+			t.Errorf("squarePositive(10) = %d; expected 100", result)
+		}
+	})
+
+	t.Run("positive 100", func(t *testing.T) {
+		if result := squarePositive(100); result != 10000 {
+			t.Errorf("squarePositive(100) = %d; expected 10000", result)
+		}
+	})
+
+	// CRITICAL: Negative integers - should return 0, NOT be squared
+	t.Run("negative -1", func(t *testing.T) {
+		if result := squarePositive(-1); result != 0 {
+			t.Errorf("squarePositive(-1) = %d; expected 0", result)
+		}
+	})
+
+	t.Run("negative -2", func(t *testing.T) {
+		if result := squarePositive(-2); result != 0 {
+			t.Errorf("squarePositive(-2) = %d; expected 0", result)
+		}
+	})
+
+	t.Run("negative -5", func(t *testing.T) {
+		// NOT 25! Negatives should be excluded
+		if result := squarePositive(-5); result != 0 {
+			t.Errorf("squarePositive(-5) = %d; expected 0", result)
+		}
+	})
+
+	t.Run("negative -10", func(t *testing.T) {
+		// NOT 100! Negatives should be excluded
+		if result := squarePositive(-10); result != 0 {
+			t.Errorf("squarePositive(-10) = %d; expected 0", result)
+		}
+	})
+
+	t.Run("negative -100", func(t *testing.T) {
+		if result := squarePositive(-100); result != 0 {
+			t.Errorf("squarePositive(-100) = %d; expected 0", result)
+		}
+	})
+
+	// Zero - should return 0
+	t.Run("zero", func(t *testing.T) {
+		if result := squarePositive(0); result != 0 {
+			t.Errorf("squarePositive(0) = %d; expected 0", result)
+		}
+	})
 }
 
 // TestSumOfSquaresPositiveOnly tests the full algorithm
 func TestSumOfSquaresPositiveOnly(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    []int64
-		expected int64
-	}{
-		// Only positive numbers
-		{"only positives", []int64{1, 2, 3}, 14}, // 1+4+9 = 14
+	// Only positive numbers: 1+4+9 = 14
+	t.Run("only positives", func(t *testing.T) {
+		processed := recursive_loop([]int64{1, 2, 3}, 0, squarePositive)
+		result := sum(processed)
+		if result != 14 {
+			t.Errorf("sum of squares for [1,2,3] = %d; expected 14", result)
+		}
+	})
 
-		// Mixed with negatives - negatives should be excluded
-		{"mixed with negatives", []int64{-1, 2, -3, 4}, 20}, // 0+4+0+16 = 20
+	// Mixed with negatives: 0+4+0+16 = 20
+	t.Run("mixed with negatives", func(t *testing.T) {
+		processed := recursive_loop([]int64{-1, 2, -3, 4}, 0, squarePositive)
+		result := sum(processed)
+		if result != 20 {
+			t.Errorf("sum of squares for [-1,2,-3,4] = %d; expected 20", result)
+		}
+	})
 
-		// All negatives - should be 0
-		{"all negatives", []int64{-1, -2, -3}, 0},
+	// All negatives - should be 0
+	t.Run("all negatives", func(t *testing.T) {
+		processed := recursive_loop([]int64{-1, -2, -3}, 0, squarePositive)
+		result := sum(processed)
+		if result != 0 {
+			t.Errorf("sum of squares for [-1,-2,-3] = %d; expected 0", result)
+		}
+	})
 
-		// With zero - zero is not positive
-		{"with zeros", []int64{0, 1, 0, 2, 0}, 5}, // 0+1+0+4+0 = 5
+	// With zero: 0+1+0+4+0 = 5
+	t.Run("with zeros", func(t *testing.T) {
+		processed := recursive_loop([]int64{0, 1, 0, 2, 0}, 0, squarePositive)
+		result := sum(processed)
+		if result != 5 {
+			t.Errorf("sum of squares for [0,1,0,2,0] = %d; expected 5", result)
+		}
+	})
 
-		// Large numbers to test int64
-		{"large numbers", []int64{1000, 2000}, 5000000}, // 1000000 + 4000000 = 5000000
+	// Large numbers: 1000000 + 4000000 = 5000000
+	t.Run("large numbers", func(t *testing.T) {
+		processed := recursive_loop([]int64{1000, 2000}, 0, squarePositive)
+		result := sum(processed)
+		if result != 5000000 {
+			t.Errorf("sum of squares for [1000,2000] = %d; expected 5000000", result)
+		}
+	})
 
-		// Edge case: single positive
-		{"single positive", []int64{5}, 25},
+	// Single positive
+	t.Run("single positive", func(t *testing.T) {
+		processed := recursive_loop([]int64{5}, 0, squarePositive)
+		result := sum(processed)
+		if result != 25 {
+			t.Errorf("sum of squares for [5] = %d; expected 25", result)
+		}
+	})
 
-		// Edge case: single negative
-		{"single negative", []int64{-5}, 0},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			processed := recursive_loop(tt.input, 0, squarePositive)
-			result := sum(processed)
-			if result != tt.expected {
-				t.Errorf("sum of squares for %v = %d; expected %d", tt.input, result, tt.expected)
-			}
-		})
-	}
+	// Single negative
+	t.Run("single negative", func(t *testing.T) {
+		processed := recursive_loop([]int64{-5}, 0, squarePositive)
+		result := sum(processed)
+		if result != 0 {
+			t.Errorf("sum of squares for [-5] = %d; expected 0", result)
+		}
+	})
 }
 
 // TestStringToInt64 tests the string to int64 conversion
 func TestStringToInt64(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected int64
-	}{
-		{"positive number", "42", 42},
-		{"negative number", "-42", -42},
-		{"zero", "0", 0},
-		{"large positive", "9223372036854775807", 9223372036854775807},
-		{"large negative", "-9223372036854775808", -9223372036854775808},
-	}
+	t.Run("positive number", func(t *testing.T) {
+		if result := string_to_int64("42"); result != 42 {
+			t.Errorf("string_to_int64(\"42\") = %d; expected 42", result)
+		}
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := string_to_int64(tt.input)
-			if result != tt.expected {
-				t.Errorf("string_to_int64(%s) = %d; expected %d", tt.input, result, tt.expected)
-			}
-		})
+	t.Run("negative number", func(t *testing.T) {
+		if result := string_to_int64("-42"); result != -42 {
+			t.Errorf("string_to_int64(\"-42\") = %d; expected -42", result)
+		}
+	})
+
+	t.Run("zero", func(t *testing.T) {
+		if result := string_to_int64("0"); result != 0 {
+			t.Errorf("string_to_int64(\"0\") = %d; expected 0", result)
+		}
+	})
+
+	t.Run("large positive", func(t *testing.T) {
+		if result := string_to_int64("9223372036854775807"); result != 9223372036854775807 {
+			t.Errorf("string_to_int64(\"9223372036854775807\") = %d; expected 9223372036854775807", result)
+		}
+	})
+
+	t.Run("large negative", func(t *testing.T) {
+		if result := string_to_int64("-9223372036854775808"); result != -9223372036854775808 {
+			t.Errorf("string_to_int64(\"-9223372036854775808\") = %d; expected -9223372036854775808", result)
+		}
+	})
+}
+
+// compareSlicesRecursive compares two int64 slices recursively
+func compareSlicesRecursive(t *testing.T, result, expected []int64, index int) {
+	if index >= len(expected) {
+		return
 	}
+	if result[index] != expected[index] {
+		t.Errorf("recursive_loop[%d] = %d; expected %d", index, result[index], expected[index])
+	}
+	compareSlicesRecursive(t, result, expected, index+1)
 }
 
 // TestRecursiveLoop tests the generic recursive loop function
@@ -168,11 +278,8 @@ func TestRecursiveLoop(t *testing.T) {
 		t.Fatalf("recursive_loop returned %d elements; expected %d", len(result), len(expected))
 	}
 
-	for i := range expected {
-		if result[i] != expected[i] {
-			t.Errorf("recursive_loop[%d] = %d; expected %d", i, result[i], expected[i])
-		}
-	}
+	// Use recursive comparison instead of for loop
+	compareSlicesRecursive(t, result, expected, 0)
 }
 
 // TestInt64Overflow ensures no overflow with large squares
