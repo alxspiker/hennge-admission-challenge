@@ -125,7 +125,8 @@ func TestBuildSecret(t *testing.T) {
 		}
 	})
 
-	t.Run("aswai21@gmail.com", func(t *testing.T) {
+	// Test with the default email used in this challenge submission
+	t.Run("challenge_default_email", func(t *testing.T) {
 		result := BuildSecret("aswai21@gmail.com")
 		expected := "HENNGECHALLENGEaswai21@gmail.com"
 		if result != expected {

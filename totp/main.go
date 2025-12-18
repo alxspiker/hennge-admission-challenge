@@ -9,7 +9,8 @@ import (
 	"time"
 )
 
-// DefaultEmail is the email to use for TOTP generation
+// DefaultEmail is the email address for TOTP generation in the HENNGE challenge.
+// This should be changed to your own email address when submitting the challenge.
 const DefaultEmail = "aswai21@gmail.com"
 
 // DefaultDigits is the number of digits for TOTP output (HENNGE requires 10)
@@ -164,7 +165,10 @@ func decodeSecret(secret string) []byte {
 	return []byte(secret)
 }
 
-// GenerateSecret creates a random base32-encoded secret using recursion
+// GenerateSecret creates a deterministic secret for demo purposes.
+// WARNING: This is NOT cryptographically secure and should NOT be used in production.
+// For the HENNGE challenge, use BuildSecret() with your email instead.
+// In production, use crypto/rand to generate truly random secrets.
 func GenerateSecret(length int) string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 	secret := make([]byte, length)
@@ -172,12 +176,13 @@ func GenerateSecret(length int) string {
 	return string(secret)
 }
 
-// generateSecretRecursive is the recursive helper for secret generation
+// generateSecretRecursive is the recursive helper for secret generation.
+// NOTE: This generates predictable output and is for demo/testing only.
 func generateSecretRecursive(secret []byte, charset string, index int) {
 	if index >= len(secret) {
 		return
 	}
-	// Simplified for demo - in production use crypto/rand
+	// Predictable pattern for demo - DO NOT use in production
 	secret[index] = charset[index%len(charset)]
 	generateSecretRecursive(secret, charset, index+1)
 }
